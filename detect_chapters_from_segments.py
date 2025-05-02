@@ -1,6 +1,5 @@
 import argparse
 import json
-import os
 import re
 import math
 from pathlib import Path
@@ -15,7 +14,6 @@ except ImportError:
     print("MLX LM not available. Install with: pip install mlx-lm")
     HAS_MLX = False
 
-# --- Chapter detection logic (adapted from chapter_marker.py) ---
 
 class ChapterDetector:
     """
@@ -164,31 +162,6 @@ class ChapterDetector:
                 print(f"Error using MLX model: {e}")
             return {"is_chapter": False, "at_beginning": False}
 
-    def is_chapter_marker_regex(self, text: str) -> bool:
-        """
-        Check if the given text represents a chapter marker using comprehensive regex patterns.
-        
-        Args:
-            text (str): The text to check
-            
-        Returns:
-            bool: True if the text appears to be a chapter marker, False otherwise
-        """
-        text = text.strip()
-        text_lower = text.lower()
-        
-        # First check if text contains any exclusion patterns
-        for exclude in self.exclude_patterns:
-            if re.search(exclude, text_lower):
-                return False
-        
-        # Then check against all our patterns
-        for pattern in self.patterns:
-            if re.search(pattern, text_lower, re.IGNORECASE):
-                return True
-                
-        return False
-
     def is_chapter_marker(self, text: str) -> dict:
         """
         Check if the given text is a chapter marker using MLX only.
@@ -232,13 +205,9 @@ class ChapterDetector:
             if match:
                 prefix = match.group(1).capitalize()
                 number = match.group(2)
-                title = match.group(3) if match.group(3) else ""
                 
-                # Format output
-                if title:
-                    return f"{prefix} {number}: {title.strip()}"
-                else:
-                    return f"{prefix} {number}"
+                # Just return the chapter prefix and number without any extra text
+                return f"{prefix} {number}"
         
         return ""
         

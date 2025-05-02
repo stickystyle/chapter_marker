@@ -1,0 +1,42 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Chapter Marker Detection Guide
+
+The main logic for markers in audiobook transcripts is implemented in [detect_chapters_from_segments.py](mdc:detect_chapters_from_segments.py).
+
+## Key Features
+
+- **LLM-Based Detection:** Uses a large language model (Llama 3.1 8B) to robustly identify chapter markers anywhere in a text segment, not just at the beginning.
+- **Sliding Window Timestamping:** If a chapter marker is not at the beginning of a segment, the code uses a sliding window over the `words` array to find the precise word where the chapter marker starts, and uses its timestamp for accurate chapter timing.
+- **No Regex/Pattern Fallback:** All chapter marker detection is performed by the LLM, not by regex or pattern match:** Supports both JSON and JSONL input formats for segments.
+- **Output:** Produces a text file with accurate chapter marker timestamps and titles.
+
+## Usage
+
+Run the script as follows:
+```bash
+python detect_chapters_from_segments.py <segments.jsonl or .json> [-o output.txt] [--no-mlx] [--model <model_name>] [-v]
+```
+
+## Implementation Details
+
+- The main entry point is the `main` block in [detect_chapters_from_segments.py](mdc:detect_chapters_from_segments.py).
+- The `ChapterDetector` class handles all detection logic.
+- The `is_chapter_marker_mlx` method queries the LLM to determine if a text contains a chapter marker and if it is at the beginning.
+- The `find_precise_chapter_timestamp` method uses a sliding window over the `words` array to find the exact timestamp for chapter markers not at the beginning of a segment.
+- The script outputs a file with lines in the format: `HH:MM:SS.mmm - Chapter X: Title`.
+
+## Example
+
+For a segment like:
+`{"start": 8042.62, "end": 8052.24, "text": "29 seconds later, Ford and Arthur were rescued. Chapter 9", ...}`
+
+The script will:
+- Detect that the chapter marker is not at the beginning.
+- Use a sliding window over the `words` array to find the precise timestamp for "Chapter 9".
+- Output the correct timestamp and chapter title.
+
+Refer to [detect_chapters_from_segments.py](mdc:detect_chapters_from_segments.py) for implementation details.

@@ -1,0 +1,6 @@
+openai-whisper==20240930
+pytest==8.0.0
+numpy
+tqdm==4.66.2
+mlx-lm==0.22.1
+mlx
